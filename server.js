@@ -33,10 +33,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ── Routes ───────────────────────────────────────────────────────────────────
-app.use('/api/auth',     require('./routes/auth'));
-app.use('/api/profile',  require('./routes/profile'));
-app.use('/api/projects', require('./routes/projects'));
+app.use('/api/auth', require('./routes/auth'));
+
+// ✅ SINGLE SOURCE
 app.use('/api/users', require('./routes/profile'));
+app.use('/api/projects', require('./routes/projects'));
+
+// ❌ REMOVE this (optional but better)
+/// app.use('/api/profile', require('./routes/profile'));
 
 // ── Health Check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
