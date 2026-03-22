@@ -12,8 +12,20 @@ const PORT = process.env.PORT || 5000;
 
 // ── Security Middleware ──────────────────────────────────────────────────────
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+
+// ✅ FIXED: support multiple allowed origins (localhost + Vercel)
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS blocked: ${origin}`));
+  },
   credentials: true
 }));
 
@@ -33,14 +45,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ── Routes ───────────────────────────────────────────────────────────────────
-app.use('/api/auth', require('./routes/auth'));
+app.use('/api/auth',     require('./routes/auth'));
 
-// ✅ SINGLE SOURCE
-app.use('/api/users', require('./routes/profile'));
+// ✅ FIXED: /api/users for public Home page, /api/profile for admin dashboard
+app.use('/api/users',    require('./routes/profile'));
+app.use('/api/profile',  require('./routes/profile'));
 app.use('/api/projects', require('./routes/projects'));
-
-// ❌ REMOVE this (optional but better)
-/// app.use('/api/profile', require('./routes/profile'));
 
 // ── Health Check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
