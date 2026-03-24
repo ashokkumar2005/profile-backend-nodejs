@@ -92,6 +92,7 @@ router.post('/upload-resume', auth, upload.single('resume'), async (req, res) =>
   }
 });
 
+
 // GET /api/profile/download-resume  – public, streams PDF with proper headers
 router.get('/download-resume', async (req, res) => {
   try {
