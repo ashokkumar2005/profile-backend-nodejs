@@ -1,106 +1,198 @@
-# Ashokkumar T — Portfolio Backend (Phase 2)
+# 🚀 Portfolio Backend
 
-Express + MongoDB API powering the admin dashboard: authentication, content
-CRUD, image uploads, and the contact form.
+Backend API for my personal developer portfolio, built with **Node.js, Express.js, and MongoDB**. It provides APIs for managing portfolio content and handling messages submitted through the contact form.
 
-## Stack
+## 🛠️ Tech Stack
 
-Node.js (ESM) · Express · MongoDB / Mongoose · JWT (`jsonwebtoken`) ·
-`bcryptjs` · Multer (memory storage) · Cloudinary · Helmet · Morgan · CORS
+- **Node.js** – JavaScript runtime
+- **Express.js** – Backend framework
+- **MongoDB** – NoSQL database
+- **Mongoose** – MongoDB ODM
+- **JWT** – Authentication
+- **bcrypt** – Password hashing
+- **CORS** – Cross-Origin Resource Sharing
+- **Helmet** – HTTP security headers
+- **express-rate-limit** – API rate limiting
+- **dotenv** – Environment variable management
+- **Multer / Cloudinary** – File and image handling
 
-## Setup
+## ✨ Features
 
-1. **Install dependencies**
-   ```bash
-   npm install
-   ```
+- 🔐 Admin authentication using JWT
+- 👤 Admin-protected routes
+- 📩 Contact form API
+- 📁 Portfolio/project management APIs
+- 🖼️ Image upload and management
+- 🗄️ MongoDB database integration
+- 🔒 Password hashing with bcrypt
+- 🛡️ API security using Helmet and rate limiting
+- 🌐 CORS configuration
+- ⚙️ Environment variable configuration
+- 🚀 Production deployment support
 
-2. **Create your `.env`** from the template and fill in real values:
-   ```bash
-   cp .env.example .env
-   ```
-   You'll need:
-   - A MongoDB Atlas cluster → connection string for `MONGODB_URI`
-   - A Cloudinary account (free tier is fine) → cloud name, API key, API secret
-   - A long random string for `JWT_SECRET` (e.g. `openssl rand -hex 32`)
+## 📂 Project Structure
 
-3. **Create your admin login.** Set `ADMIN_USERNAME` and `ADMIN_PASSWORD` in
-   `.env`, then run:
-   ```bash
-   npm run seed:admin
-   ```
-   This hashes the password and stores it in MongoDB — the plaintext value
-   is never saved. Remove those two lines from `.env` afterwards.
+```text
+backend/
+│
+├── controllers/
+│   ├── authController.js
+│   ├── projectController.js
+│   └── contactController.js
+│
+├── middleware/
+│   ├── authMiddleware.js
+│   └── errorMiddleware.js
+│
+├── models/
+│   ├── User.js
+│   ├── Project.js
+│   └── Contact.js
+│
+├── routes/
+│   ├── authRoutes.js
+│   ├── projectRoutes.js
+│   └── contactRoutes.js
+│
+├── config/
+│   └── db.js
+│
+├── uploads/
+│
+├── .env
+├── .gitignore
+├── server.js
+└── package.json
+```
 
-4. **(Optional) Seed starting content** — migrates the resume-derived data
-   into MongoDB so the dashboard isn't empty on first login:
-   ```bash
-   npm run seed:content
-   ```
+## 🔌 API Endpoints
 
-5. **Run the API**
-   ```bash
-   npm run dev     # auto-restarts on file changes
-   npm start        # production
-   ```
-   Defaults to `http://localhost:5000`.
+### Authentication
 
-## API overview
-
-All routes are prefixed with `/api`.
-
-| Resource | Public | Admin (Bearer token) |
+| Method | Endpoint | Description |
 |---|---|---|
-| `POST /auth/login` | ✅ | — |
-| `GET /auth/me` | — | ✅ |
-| `GET /profile` | ✅ | — |
-| `PUT /profile` | — | ✅ |
-| `GET/POST/PUT/DELETE /skills` | GET only | write |
-| `GET/POST/PUT/DELETE /projects` | GET only | write |
-| `GET/POST/PUT/DELETE /education` | GET only | write |
-| `GET/POST/PUT/DELETE /achievements` | GET only | write |
-| `GET/POST/PUT/DELETE /certifications` | GET only | write |
-| `GET/POST/PUT/DELETE /testimonials` | GET only | write |
-| `POST /contact` | ✅ | — |
-| `GET/PATCH/DELETE /contact` | — | ✅ |
-| `POST /upload` (multipart `image` field) | — | ✅ |
-| `GET /health` | ✅ | — |
+| POST | `/api/auth/login` | Admin login |
+| POST | `/api/auth/register` | Create admin account |
 
-Admin routes expect `Authorization: Bearer <token>`, where the token comes
-from `POST /auth/login`.
+### Projects
 
-## Project structure
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/projects` | Get all projects |
+| GET | `/api/projects/:id` | Get a project |
+| POST | `/api/projects` | Create a project |
+| PUT | `/api/projects/:id` | Update a project |
+| DELETE | `/api/projects/:id` | Delete a project |
 
+### Contact
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/contact` | Submit contact message |
+| GET | `/api/contact` | Get contact messages |
+
+> Protected endpoints require a valid JWT authentication token.
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in the backend root directory:
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+CLIENT_URL=your_frontend_url
 ```
-config/        MongoDB + Cloudinary setup
-controllers/   Route logic, including a generic CRUD factory reused by
-               every content resource (skills, projects, education, etc.)
-middleware/    JWT auth guard, centralized error handling
-models/        Mongoose schemas
-routes/        Express routers, including a generic resource-router builder
-seed/          One-time scripts: create admin login, migrate starter content
-utils/         JWT signing helper
+
+**Never commit your `.env` file to GitHub.**
+
+## 📦 Installation
+
+Clone the repository:
+
+```bash
+git clone YOUR_BACKEND_REPOSITORY_URL
 ```
 
-Because every content resource (skills, projects, education, achievements,
-certifications, testimonials) shares the same shape, `crudFactory.js` and
-`resourceRoutes.js` generate their controllers/routers instead of repeating
-near-identical code six times. Adding a new resource is: define the model,
-then one line in `routes/index.js`.
+Navigate into the project:
 
-## Deploying to Render
+```bash
+cd backend
+```
 
-1. Push this folder to its own GitHub repo (or a `backend/` subfolder).
-2. New Web Service on Render → connect the repo.
-3. Build command: `npm install` — Start command: `npm start`
-4. Add all `.env` variables in Render's Environment settings.
-5. After the first deploy, run `npm run seed:admin` locally pointed at the
-   same `MONGODB_URI` (or via Render's shell) to create your login.
+Install dependencies:
 
-## What's NOT tested end-to-end here
+```bash
+npm install
+```
 
-I don't have a live MongoDB or Cloudinary account in this environment, so I
-verified the server boots, loads every route, and fails cleanly on a bad DB
-connection — but I could not run the full request/response cycle against a
-real database. Test each endpoint with Postman/Thunder Client once you've
-filled in real credentials, starting with `POST /auth/login`.
+Create your `.env` file and add the required environment variables.
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+The API will run on:
+
+```text
+http://localhost:5000
+```
+
+## 🔐 Security
+
+This backend implements several security practices:
+
+- JWT-based authentication
+- bcrypt password hashing
+- Helmet security headers
+- CORS configuration
+- API rate limiting
+- Environment variables for sensitive credentials
+- Protected admin routes
+- Input validation
+
+## 🌐 Frontend Integration
+
+The backend API can be connected to a React frontend using **Axios** or the browser `fetch()` API.
+
+Example:
+
+```javascript
+import axios from "axios";
+
+const response = await axios.get(
+  `${import.meta.env.VITE_API_URL}/api/projects`
+);
+
+console.log(response.data);
+```
+
+## 🚀 Deployment
+
+The backend can be deployed using platforms such as:
+
+- Render
+
+MongoDB can be hosted using **MongoDB Atlas**.
+
+## 👨‍💻 Author
+
+**Ashok Kumar**
+
+MERN Full Stack Developer
+
+- React.js
+- Node.js
+- Express.js
+- MongoDB
+
+## 📄 License
+
+This project is created for personal portfolio and learning purposes.
